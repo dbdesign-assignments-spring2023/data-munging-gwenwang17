@@ -1,53 +1,37 @@
-# Place code below to do the analysis part of the assignment.
-all_text = []
-x = 0
+import csv
 
-
-f = open("data/nasa_data.txt", "r")
-all_text = f.readlines()
-
-
-f = open("clean_data.csv", "w")
-
-# make sure to subtract 1 from line_number as starts from 0
-for line_number, line_text in enumerate(all_text):
-    # remove notes
-    if line_number <= 6 or line_number >= 166:
-        continue
-    else:
-        # remove all but the first line of column headings
-        if "Year" in line_text and line_number > 7:
-            continue
-        # remove all blank lines
-        if not line_text.strip():
+sum = 0
+averages = []
+decades = []
+with open('clean_data.csv') as csv_file:
+    csv_reader = csv.reader(csv_file, delimiter=' ')
+    line_count = 0
+    final_year = None
+    for row in csv_reader:
+        if line_count == 0:
+            line_count += 1
             continue
         else:
-            # convert to fahrenheit
-            # avoid headings
-            if line_number >= 8:
-                cel = line_text.split()
-                fah = []
-                for i, val in enumerate(cel):
-                    # avoids years (first and last element)
-                    if i == 0:
-                        fah.append(val)
-                    elif i == 19:
-                        fah.append(val+"\n")
-                    else:
-                        if "*" not in val:
-                            fah.append("{:.1f}".format(int(val)/100.0*1.8))
-                        else:
-                            print(val)
-                            fah.append("*")
+            # J-D or average is the 13th element
+            yr_average = float(row[13])
+            sum += yr_average
 
-                string_text = " ".join(fah)
-                f.write(string_text)
-            # handle header
-            else:
-                string_list = line_text.split()
-                string_text = " ".join(string_list)
-                string_text += "\n"
-                f.write(string_text)
+            yr = int(row[0])
 
+            if yr % 10 == 0:
+                decades.append(yr)
+            if yr % 10 == 9:
+                average = sum/10.0
+                averages.append("{:.1f}".format(average))
+                sum = 0
 
-f.close()
+            line_count += 1
+            final_year = yr
+    # need to consider the case for the last decade (2020-2022) where 2022%10 != 9
+    # we divide by the number of years in the decade which is final_year % 10 + 1
+    num_years = int(final_year) % 10 + 1
+    average = sum/num_years
+    averages.append("{:.1f}".format(average))
+
+print(decades)
+print(averages)
