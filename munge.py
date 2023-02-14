@@ -36,10 +36,11 @@ for line_number, line_text in enumerate(all_text):
                     else:
                         if "*" not in val:
                             fah.append("{:.1f}".format(int(val)/100.0*1.8))
+                        # handles missing values, we skip the line
                         else:
-                            print(val)
-                            fah.append("*")
-
+                            fah = []
+                            break
+                print(fah)
                 string_text = " ".join(fah)
                 f.write(string_text)
             # handle header
